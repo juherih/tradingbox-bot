@@ -1,0 +1,28 @@
+name: Jalankan Robot Trading Otomatis
+
+on:
+  schedule:
+    # Robot akan menyala otomatis setiap 1 jam sekali
+    - cron: '0 * * * *'
+  workflow_dispatch: # Memungkinkan kita menyalakan robot secara manual kapan saja
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Ambil kode dari repository
+      uses: actions/checkout@v4
+
+    - name: Siapkan Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Instal Pustaka yang Dibutuhkan (Pandas & YFinance)
+      run: |
+        pip install yfinance pandas
+
+    - name: Jalankan Robot Trading
+      run: |
+        python bot.py
