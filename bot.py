@@ -9,7 +9,7 @@ def kirim_telegram(pesan):
     chat_id = os.environ.get('TELEGRAM_CHAT_ID')
     
     if not token or not chat_id:
-        print("Token atau Chat ID Telegram belum diset!")
+        print("❌ Token atau Chat ID Telegram belum diset di Secrets!")
         return
         
     url = f"https://api.telegram.org/bot{token}/sendMessage"
@@ -23,29 +23,28 @@ def kirim_telegram(pesan):
     try:
         req = urllib.request.Request(url, data=data)
         with urllib.request.urlopen(req) as response:
-            print("Pesan Telegram berhasil terkirim!")
+            print("✅ Pesan Telegram berhasil terkirim!")
     except Exception as e:
-        print(f"Gagal mengirim pesan Telegram: {e}")
+        print(f"❌ Gagal mengirim pesan Telegram: {e}")
 
 def jalankan_robot_trading():
     print("=== SIMULASI ROBOT TRADING ETH/USDT + TELEGRAM ===")
     
-    modal_awal = 50.0  # dalam USD
+    modal_awal = 50.0  # modal virtual USD
     
-    # 1. Ambil data historis
+    # 1. Ambil data harga ETH-USD
     data = yf.download("ETH-USD", period="60d", interval="1d", progress=False)
     df = pd.DataFrame()
     df['Close'] = data['Close']
     
-    # 2. Menentukan Batas Kotak (10 periode)
+    # 2. Hitung Atap Kotak (10 periode)
     window = 10
     df['Box_High'] = df['Close'].shift(1).rolling(window=window).max()
-    df['Box_Low'] = df['Close'].shift(1).rolling(window=window).min()
     
     harga_terkini = float(df['Close'].iloc[-1])
     atas_kotak = float(df['Box_High'].iloc[-1])
     
-    # 3. Susun Teks Laporan
+    # 3. Format Teks Laporan
     laporan = f"🤖 *LAPORAN ROBOT TRADING ETH/USDT*\n\n" \
               f"💰 Modal Virtual : *$ {modal_awal:,.2f}*\n" \
               f"📈 Harga Terkini : *$ {harga_terkini:,.2f}*\n" \
@@ -67,7 +66,7 @@ def jalankan_robot_trading():
 
     print(laporan)
     
-    # 4. Kirim ke Telegram
+    # 4. Kirim Laporan ke Telegram
     kirim_telegram(laporan)
 
 if __name__ == "__main__":
